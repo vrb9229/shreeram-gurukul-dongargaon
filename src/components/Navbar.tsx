@@ -6,6 +6,10 @@ export default function Navbar() {
 
   const links = [
     { to: '/', label: 'Home' },
+    { to: '/about', label: 'About Us' },
+    { to: '/academics', label: 'Academics' },
+    { to: '/activities', label: 'Activities' },
+    { to: '/admissions', label: 'Admissions' },
     { to: '/gallery', label: 'Gallery' },
     { to: '/contact', label: 'Contact' },
   ];
@@ -39,6 +43,24 @@ export default function Navbar() {
               </NavLink>
             </li>
           ))}
+          <li className="navbar__cta">
+            <NavLink
+              to="/parent-login"
+              className="navbar__link-btn navbar__link-btn--outline"
+              onClick={() => setOpen(false)}
+            >
+              Parent Login
+            </NavLink>
+          </li>
+          <li className="navbar__cta">
+            <NavLink
+              to="/admissions"
+              className="navbar__link-btn navbar__link-btn--primary"
+              onClick={() => setOpen(false)}
+            >
+              Admission Enquiry
+            </NavLink>
+          </li>
         </ul>
       </div>
     </nav>

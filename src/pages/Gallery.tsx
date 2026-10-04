@@ -1,41 +1,80 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { SCHOOL } from '../data/school';
 
-const images = [
-  { src: '/gallery/1.jpeg', alt: 'Gallery image 1' },
-  { src: '/gallery/2.jpeg', alt: 'Gallery image 2' },
-  { src: '/gallery/3.jpeg', alt: 'Gallery image 3' },
-  { src: '/gallery/4.jpeg', alt: 'Gallery image 4' },
-  { src: '/gallery/5.jpeg', alt: 'Gallery image 5' },
-];
+const images = SCHOOL.galleryImages;
 
 export default function Gallery() {
-  const [lightbox, setLightbox] = useState<string | null>(null);
+  const [current, setCurrent] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+
+  const next = useCallback(() => {
+    setCurrent((prev) => (prev + 1) % images.length);
+  }, []);
+
+  const prev = useCallback(() => {
+    setCurrent((prev) => (prev - 1 + images.length) % images.length);
+  }, []);
+
+  useEffect(() => {
+    if (isPaused) return;
+    const timer = setInterval(next, 4000);
+    return () => clearInterval(timer);
+  }, [next, isPaused]);
 
   return (
     <div className="gallery-page">
       <div className="page-header">
         <h1>Gallery</h1>
-        <p>A glimpse into life at Shreeram Gurukul Dongargaon</p>
+        <p>A glimpse into life at {SCHOOL.shortName}</p>
       </div>
-      <div className="gallery-grid">
-        {images.map((img, i) => (
+
+      <section className="slideshow" onMouseEnter={() => setIsPaused(true)} onMouseLeave={() => setIsPaused(false)}>
+        <button className="slideshow__arrow slideshow__arrow--left" onClick={prev} aria-label="Previous image">
+          &#10094;
+        </button>
+        <div className="slideshow__viewport">
           <div
-            key={i}
-            className="gallery-grid__item"
-            onClick={() => setLightbox(img.src)}
+            className="slideshow__track"
+            style={{ transform: `translateX(-${current * 100}%)` }}
           >
-            <img src={img.src} alt={img.alt} loading="lazy" />
+            {images.map((img, i) => (
+              <div key={i} className="slideshow__slide">
+                <img src={img.src} alt={img.alt} />
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
-      {lightbox && (
-        <div className="lightbox" onClick={() => setLightbox(null)}>
-          <img src={lightbox} alt="Enlarged view" />
-          <button className="lightbox__close" onClick={() => setLightbox(null)}>
-            ✕
-          </button>
         </div>
-      )}
+        <button className="slideshow__arrow slideshow__arrow--right" onClick={next} aria-label="Next image">
+          &#10095;
+        </button>
+        <div className="slideshow__dots">
+          {images.map((_, i) => (
+            <button
+              key={i}
+              className={`slideshow__dot ${i === current ? 'active' : ''}`}
+              onClick={() => setCurrent(i)}
+              aria-label={`Go to image ${i + 1}`}
+            />
+          ))}
+        </div>
+      </section>
+
+      <section className="content-section">
+        <div className="content-section__inner">
+          <h2 className="section-title">All Photos</h2>
+          <div className="gallery-grid gallery-grid--page">
+            {images.map((img, i) => (
+              <div
+                key={i}
+                className="gallery-grid__item"
+                onClick={() => setCurrent(i)}
+              >
+                <img src={img.src} alt={img.alt} loading="lazy" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
